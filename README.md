@@ -3,6 +3,8 @@ This fork is for adding the weight system, means nobody can take or buy more tha
 It's for ESX v1 Final
 
 AR
+
+
 هاد السكربت معدل لاخر اصدار اي اس اكس يعني 
 مع نظام حمل الحقيبة
 
