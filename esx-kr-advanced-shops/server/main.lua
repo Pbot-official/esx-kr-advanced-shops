@@ -18,48 +18,38 @@ end)
 --Removes item from shop
 RegisterServerEvent('esx_kr_shops:RemoveItemFromShop')
 AddEventHandler('esx_kr_shops:RemoveItemFromShop', function(number, count, item)
-  local src = source
-  local xPlayer = ESX.GetPlayerFromId(src)
-  local identifier =  ESX.GetPlayerFromId(src).identifier
-
-        MySQL.Async.fetchAll(
-        'SELECT count, item FROM shops WHERE item = @item AND ShopNumber = @ShopNumber',
-        {
-            ['@ShopNumber'] = number,
-            ['@item'] = item,
-        },
-        function(data)
-
-            if count > data[1].count then
-
-                TriggerClientEvent('esx:showNotification', xPlayer.source, '~r~You can\' t take out more than you own')
-                else
-
-                if data[1].count ~= count then
-
-                    MySQL.Async.fetchAll("UPDATE shops SET count = @count WHERE item = @item AND ShopNumber = @ShopNumber",
-                    {
-                        ['@item'] = item,
-                        ['@ShopNumber'] = number,
-                        ['@count'] = data[1].count - count
-                    }, function(result)
-                    
+    local src = source
+    local xPlayer = ESX.GetPlayerFromId(src)
+    local identifier =  ESX.GetPlayerFromId(src).identifier
+    
+    MySQL.Async.fetchAll('SELECT count, item FROM shops WHERE item = @item AND ShopNumber = @ShopNumber', {
+        ['@ShopNumber'] = number,
+        ['@item'] = item,
+    },
+    function(data)
+        if xPlayer.canCarryItem(item, count) then
+            if data[1].count ~= count then
+                MySQL.Async.fetchAll("UPDATE shops SET count = @count WHERE item = @item AND ShopNumber = @ShopNumber", {
+                    ['@item'] = item,
+                    ['@ShopNumber'] = number,
+                    ['@count'] = data[1].count - count
+                }, 
+                function(result)
                     xPlayer.addInventoryItem(data[1].item, count)
                 end)
-    
-                elseif data[1].count == count then
-
-                    MySQL.Async.fetchAll("DELETE FROM shops WHERE item = @name AND ShopNumber = @Number",
-                    {
-                        ['@Number'] = number,
-                        ['@name'] = data[1].item
-                    })
-
-                    xPlayer.addInventoryItem(data[1].item, count)
+            elseif data[1].count == count then
+                MySQL.Async.fetchAll("DELETE FROM shops WHERE item = @name AND ShopNumber = @Number", {
+                    ['@Number'] = number,
+                    ['@name'] = data[1].item
+                })
+                xPlayer.addInventoryItem(data[1].item, count)
             end
+        else
+            TriggerClientEvent('esx:showNotification', xPlayer.source, 'your inventory is full or you can not take more than you own') 
         end
     end)
 end)
+
 
 
 --Setting selling items.
