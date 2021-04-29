@@ -130,23 +130,17 @@ end)
 -- BUYING PRODUCT
 RegisterServerEvent('esx_kr_shops:Buy')
 AddEventHandler('esx_kr_shops:Buy', function(id, Item, ItemCount)
-  local src = source
-  local identifier = ESX.GetPlayerFromId(src).identifier
-  local xPlayer = ESX.GetPlayerFromId(src)
-
-        local ItemCount = tonumber(ItemCount)
-
-        MySQL.Async.fetchAll(
-        'SELECT * FROM shops WHERE ShopNumber = @Number AND item = @item',
-        {
-            ['@Number'] = id,
-            ['@item'] = Item,
-        }, function(result)
-
+    local src = source
+    local identifier = ESX.GetPlayerFromId(src).identifier
+    local xPlayer = ESX.GetPlayerFromId(src)
     
-        MySQL.Async.fetchAll(
-        'SELECT * FROM owned_shops WHERE ShopNumber = @Number',
-        {
+    local ItemCount = tonumber(ItemCount)
+    MySQL.Async.fetchAll('SELECT * FROM shops WHERE ShopNumber = @Number AND item = @item', {
+        ['@Number'] = id,
+        ['@item'] = Item,
+    }, function(result)
+        
+        MySQL.Async.fetchAll('SELECT * FROM owned_shops WHERE ShopNumber = @Number', {
             ['@Number'] = id,
         }, function(result2)
 
@@ -154,36 +148,35 @@ AddEventHandler('esx_kr_shops:Buy', function(id, Item, ItemCount)
                 TriggerClientEvent('esx:showNotification', src, '~r~You don\'t have enough money.')
             elseif ItemCount <= 0 then
                 TriggerClientEvent('esx:showNotification', src, '~r~invalid quantity.')
-            else
+            elseif xPlayer.canCarryItem(Item, ItemCount) then
                 xPlayer.removeMoney(ItemCount * result[1].price)
                 TriggerClientEvent('esx:showNotification', xPlayer.source, '~g~You bought ' .. ItemCount .. 'x ' .. Item .. ' for $' .. ItemCount * result[1].price)
                 xPlayer.addInventoryItem(result[1].item, ItemCount)
-
-                MySQL.Async.execute("UPDATE owned_shops SET money = @money WHERE ShopNumber = @Number",
-                {
+                
+                MySQL.Async.execute("UPDATE owned_shops SET money = @money WHERE ShopNumber = @Number", {
                     ['@money']      = result2[1].money + (result[1].price * ItemCount),
                     ['@Number']     = id,
                 })
-    
-
+                
                 if result[1].count ~= ItemCount then
-                    MySQL.Async.execute("UPDATE shops SET count = @count WHERE item = @name AND ShopNumber = @Number",
-                    {
+                    MySQL.Async.execute("UPDATE shops SET count = @count WHERE item = @name AND ShopNumber = @Number", {
                         ['@name'] = Item,
                         ['@Number'] = id,
                         ['@count'] = result[1].count - ItemCount
                     })
                 elseif result[1].count == ItemCount then
-                    MySQL.Async.fetchAll("DELETE FROM shops WHERE item = @name AND ShopNumber = @Number",
-                    {
+                    MySQL.Async.fetchAll("DELETE FROM shops WHERE item = @name AND ShopNumber = @Number", {
                         ['@Number'] = id,
                         ['@name'] = result[1].item
                     })
                 end
+            else
+                TriggerClientEvent('esx:showNotification', src, 'your do not have enough space in your iventory')
             end
         end)
     end)
 end)
+
 
 --CALLBACKS
 ESX.RegisterServerCallback('esx_kr_shop:getShopList', function(source, cb)
