@@ -1,14 +1,15 @@
 Config                            = {}
 Config.DrawDistance               = 20.0
 Config.Locale = 'en'
-Config.DeliveryTime = 18000 -- IN SECOUNDS DEFAULT (18000) IS 5 HOURS / 300 MINUTES
+Config.DeliveryTime = 18000 -- IN SECOUNDS DEFAULT (18000) IS 5 HOURS / 300 MINUTES / مدة توصيل الشخنة في الثواني
 Config.TimeBetweenRobberies = 43200
-Config.CutOnRobbery = 10 -- IN PERCENTAGE FROM THE TARGET SHOP
-Config.RequiredPolices = 3 -- For the robbery
-Config.SellValue = 2 -- This is the shops value divided by 2
-Config.ChangeNamePrice = 500 -- In $ - how much you can change the shops name for
+Config.CutOnRobbery = 10 -- IN PERCENTAGE FROM THE TARGET SHOP / كم يربح السارق من السرقة في المئة
+Config.RequiredPolices = 3 -- For the robbery / العدد الازم للشرطة لبدأ السرقة
+Config.SellValue = 2 -- This is the shops value divided by 2 
+Config.ChangeNamePrice = 500 -- In $ - how much you can change the shops name for/ تكلفة تغير اسم المتجر
 
 -- CONFIG ITEMS, DON'T FORGET TO ADD CORRECT NUMBER IN THE BRACKETS
+-- المنتجات الموجودة في المخزن
 Config.Items = {
     [1] = {label = "Water",       item = "water",        price = 5},
     [2] = {label = "Bread",      item = "bread",       price = 5},
